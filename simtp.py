@@ -4,9 +4,52 @@
 # Created: 10/7/2018
 # Author:  Nelno the Amoeba
 #
+# Copyright 2018 Jonathan E. Wright
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of 
+# this software and associated documentation files (the "Software"), to deal in 
+# the Software without restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+# Software, and to permit persons to whom the Software is furnished to do so, 
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# Description:
 # A simple SMTP server used to trigger something when an email is sent.
+#
+# In particular, this is was written to allow an LaView LV-N9808C8E NVR
+# to send motion detection event emails despite its firmware being too old to
+# use any public SMTP servers due to SSLV3 support being dropped for security
+# reasons around 2016. This server will simply forward emails from the NVR
+# to a server specified on the command line.
+#
+# No other use case is supported or implied.
+#
 # Only supports dated 'simple' SMTP using HELO not EHLO (SMTP extensions)
 # Does not require any authentication from the sender.
+#
+# WARNING: You should not use this on any public-facing network.
+#
+# Only connections from the passed IP and the localhost IP (127.0.0.1) will be
+# accepted.
+#
+# Peculiarities: 
+# - only accepts one connection at a time
+# - blocks all over the place and expects a very specific sequence of commands.
+#   It is thus probably not useful as a generic SMTP server without significant
+#   modification, but it might be useful as an example.
+# - Because the LV-N9808C8E NVR firmware appears to have a bug in it that
+#   truncates the second of two JPG image email attachments, this server will
+#   only forward the first attachment of an incoming email.
 # ==============================================================================
 
 #!/usr/bin/python
@@ -261,7 +304,11 @@ def listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, ou
 	else:
 		sendMail( fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServerPort, mailData )
 
-# TODO: figure out how to send a push notification to my device		
+# TODO: figure out how to send a push notification to LaView's Android app
+
+print( "SiMTP v. 1.0\r\n" )
+print( "WARNING! You must not use this on any public-facing network!!!" )
+print( "Read the license and documentation in simtp.py!\r\n" )
 
 if ( len( sys.argv ) != 8 or not sys.argv[1].isdigit() or not sys.argv[7].isdigit() ):
 	print( 'Usage: simtp <port> <authorized_IP> <from_addr> <to_addr> <outgoing_password> <outgoing_server> <outgoing_server_port>' )
