@@ -132,19 +132,6 @@ def sendMail( fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServer
 		print( 'ERROR: ' + str( e ) )
 
 # ==============================
-# find_nth
-# straight from stackoverflow: https://stackoverflow.com/questions/1883980/find-the-nth-occurrence-of-substring-in-a-string
-def find_nth(s, x, n=0, overlap=False):
-    l = 1 if overlap else len(x)
-    i = -l
-    for c in xrange(n + 1):
-        i = s.find(x, i + l)
-        if i < 0:
-            break
-    return i
-
-
-# ==============================
 # listen
 
 def listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServerPort ):
