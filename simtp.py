@@ -147,7 +147,7 @@ def error( tokens, expected ):
 # logToFile
 
 def logToFile( mailData ):
-	filename = "mail_" + str( uuid.uuid4() ) + ".log"
+	filename = "logs\mail_" + str( uuid.uuid4() ) + ".log"
 	with open( filename, "w" ) as textFile:
 		print( mailData, file = textFile )
 
@@ -155,10 +155,10 @@ def logToFile( mailData ):
 # sendMail
 
 def sendMail( fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServerPort, mailData ):
-	server = smtplib.SMTP( outgoingServer, outgoingServerPort )
-	server.starttls()
-
 	try:
+		server = smtplib.SMTP( outgoingServer, outgoingServerPort )
+		server.starttls()
+
 		print( "Logging in to " + outgoingServer + " with TLS..." )
 		server.login( fromaddr, outgoingPassword )
 		
@@ -171,7 +171,8 @@ def sendMail( fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServer
 		
 		print( "Mail sent." )
 		logToFile( mailData )
-	except smtplib.SMTPDataError as e:
+
+	except smtplib.SMTPException as e:
 		print( 'ERROR: ' + str( e ) )
 
 # ==============================
@@ -333,3 +334,29 @@ print( "This makes no sense" )
 
 sys.exit( 0 )
 
+'''
+Mail: +3 attachments
+resp: 250 OK
+
+resp: 221 SiMTP Service closing transmission channel
+
+Connection closed.
+Traceback (most recent call last):
+  File "simtp.py", line 330, in <module>
+    listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServerPort )
+  File "simtp.py", line 303, in listen
+    sendMail( fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServerPort, truncatedMailData )
+  File "simtp.py", line 158, in sendMail
+    server = smtplib.SMTP( outgoingServer, outgoingServerPort )
+  File "D:\dev\Python\Python35\lib\smtplib.py", line 251, in __init__
+    (code, msg) = self.connect(host, port)
+  File "D:\dev\Python\Python35\lib\smtplib.py", line 335, in connect
+    self.sock = self._get_socket(host, port, self.timeout)
+  File "D:\dev\Python\Python35\lib\smtplib.py", line 306, in _get_socket
+    self.source_address)
+  File "D:\dev\Python\Python35\lib\socket.py", line 707, in create_connection
+    raise err
+  File "D:\dev\Python\Python35\lib\socket.py", line 698, in create_connection
+    sock.connect(sa)
+TimeoutError: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+'''
