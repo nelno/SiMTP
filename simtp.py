@@ -174,6 +174,15 @@ def sendMail( fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServer
 
 	except smtplib.SMTPException as e:
 		print( 'ERROR: ' + str( e ) )
+	except socket.error as e:
+		print( 'SOCKET ERROR: ' + str( e ) )
+	except socket.herror as e:
+		print( 'SOCKET HERROR: ' + str( e ) )
+	except socket.gaierror as e:
+		print( 'SOCKET GAI ERROR: ' + str( e ) )
+	except socket.timeout as e:
+		print( 'SOCKET TIMEOUT ERROR: ' + str( e ) )		
+
 
 # ==============================
 # listen
@@ -188,6 +197,9 @@ def listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, ou
 		print( "Unauthorized access from " + str( addr[0] ) + "!" )
 		quitConnection( conn )
 		return
+
+	mailData = ''
+	truncatedMailData = None
 
 	with conn:
 		try:
@@ -250,7 +262,6 @@ def listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, ou
 
 			respond( conn, 354, 'Start mail input; end with <CRLF>.<CRLF>' )
 			
-			mailData = ''
 			lastLine = ''
 			while True:
 				data = conn.recv( 4096 )
@@ -268,7 +279,6 @@ def listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, ou
 			# we truncate the last attachment because it appears the server fails to send
 			# all of the data. We can tell because even when we get a <CRLF>.<CRLF> end of
 			# input, the base64 mime text is truncated.
-			truncatedMailData = None
 			boundaryString = "--#BOUNDARY#";
 			lenBoundaryString = len( boundaryString )
 			endOfHeader = mailData.find( boundaryString )
