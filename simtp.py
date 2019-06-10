@@ -6,21 +6,21 @@
 #
 # Copyright 2018 Jonathan E. Wright
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of 
-# this software and associated documentation files (the "Software"), to deal in 
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to use,
-# copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
-# Software, and to permit persons to whom the Software is furnished to do so, 
+# copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+# Software, and to permit persons to whom the Software is furnished to do so,
 # subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all 
+# The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # Description:
@@ -42,7 +42,7 @@
 # Only connections from the passed IP and the localhost IP (127.0.0.1) will be
 # accepted.
 #
-# Peculiarities: 
+# Peculiarities:
 # - only accepts one connection at a time
 # - blocks all over the place and expects a very specific sequence of commands.
 #   It is thus probably not useful as a generic SMTP server without significant
@@ -161,14 +161,14 @@ def sendMail( fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServer
 
 		print( "Logging in to " + outgoingServer + " with TLS..." )
 		server.login( fromaddr, outgoingPassword )
-		
+
 		# text = msg.as_string()
 		print( "Sending mail..." );
 		server.sendmail( fromaddr, toaddr, mailData )
-		
+
 		print( "Logging out..." );
 		server.quit()
-		
+
 		print( "Mail sent." )
 		logToFile( mailData )
 
@@ -181,7 +181,7 @@ def sendMail( fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServer
 	except socket.gaierror as e:
 		print( 'SOCKET GAI ERROR: ' + str( e ) )
 	except socket.timeout as e:
-		print( 'SOCKET TIMEOUT ERROR: ' + str( e ) )		
+		print( 'SOCKET TIMEOUT ERROR: ' + str( e ) )
 
 
 # ==============================
@@ -217,10 +217,10 @@ def listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, ou
 			if ( tokens[0] == 'EHLO' ):
 				# greets is for EHLO only, not EHLO
 				# respond( conn, 250, 'SiMTP greets ' + clientName )
-				# respond( conn, 250, 'OK' )		
+				# respond( conn, 250, 'OK' )
 				respond( conn, 500, 'Unknown command' )
 				# after replying with an error we should get a HELO
-				tokens = waitForResponse( conn )		
+				tokens = waitForResponse( conn )
 
 			# HELO command
 			if ( tokens[0] != 'HELO' ):
@@ -239,7 +239,7 @@ def listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, ou
 
 			if ( len( tokens ) < 3 or tokens[0] != 'MAIL' or tokens[1] != 'FROM' ):
 				error( tokens, 'Expected MAIL FROM' )
-			
+
 			print( 'MAIL FROM ' + tokens[2] )
 			respond( conn, 250, 'OK' )
 
@@ -261,7 +261,7 @@ def listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, ou
 				error( tokens, 'Expected DATA' )
 
 			respond( conn, 354, 'Start mail input; end with <CRLF>.<CRLF>' )
-			
+
 			lastLine = ''
 			while True:
 				data = conn.recv( 4096 )
@@ -344,29 +344,3 @@ print( "This makes no sense" )
 
 sys.exit( 0 )
 
-'''
-Mail: +3 attachments
-resp: 250 OK
-
-resp: 221 SiMTP Service closing transmission channel
-
-Connection closed.
-Traceback (most recent call last):
-  File "simtp.py", line 330, in <module>
-    listen( sock, authIP, fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServerPort )
-  File "simtp.py", line 303, in listen
-    sendMail( fromaddr, toaddr, outgoingPassword, outgoingServer, outgoingServerPort, truncatedMailData )
-  File "simtp.py", line 158, in sendMail
-    server = smtplib.SMTP( outgoingServer, outgoingServerPort )
-  File "D:\dev\Python\Python35\lib\smtplib.py", line 251, in __init__
-    (code, msg) = self.connect(host, port)
-  File "D:\dev\Python\Python35\lib\smtplib.py", line 335, in connect
-    self.sock = self._get_socket(host, port, self.timeout)
-  File "D:\dev\Python\Python35\lib\smtplib.py", line 306, in _get_socket
-    self.source_address)
-  File "D:\dev\Python\Python35\lib\socket.py", line 707, in create_connection
-    raise err
-  File "D:\dev\Python\Python35\lib\socket.py", line 698, in create_connection
-    sock.connect(sa)
-TimeoutError: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
-'''
